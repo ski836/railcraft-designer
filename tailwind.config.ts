@@ -52,6 +52,22 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// CAD/Engineering colors
+				'cad-panel': 'hsl(var(--cad-panel))',
+				'cad-panel-border': 'hsl(var(--cad-panel-border))',
+				'cad-toolbar': 'hsl(var(--cad-toolbar))',
+				'cad-highlight': 'hsl(var(--cad-highlight))',
+				'cad-secondary': 'hsl(var(--cad-secondary))',
+				'cad-success': 'hsl(var(--cad-success))',
+				'cad-warning': 'hsl(var(--cad-warning))',
+				// 3D Scene colors
+				'scene-bg': 'hsl(var(--scene-bg))',
+				'grid-primary': 'hsl(var(--grid-primary))',
+				'grid-secondary': 'hsl(var(--grid-secondary))',
+				// Material colors
+				'material-pvc': 'hsl(var(--material-pvc))',
+				'material-steel': 'hsl(var(--material-steel))',
+				'material-aluminum': 'hsl(var(--material-aluminum))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
