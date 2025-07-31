@@ -37,7 +37,6 @@ export const RailModeler: React.FC = () => {
 
   const complexityMultipliers = {
     'straight': 1.0,
-    'kinked': 1.3,
     'curved': 1.5,
     'rainbow': 1.8,
   };

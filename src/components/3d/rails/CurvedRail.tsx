@@ -17,22 +17,32 @@ export const CurvedRail: React.FC<CurvedRailProps> = ({
   config,
   materialProps,
 }) => {
-  const radius = config.radius || 2;
-  const curve = new THREE.QuadraticBezierCurve3(
-    new THREE.Vector3(-config.length / 2, config.height, 0),
-    new THREE.Vector3(0, config.height + radius, 0),
-    new THREE.Vector3(config.length / 2, config.height, 0)
-  );
+  // Create S-curve points
+  const points: THREE.Vector3[] = [];
+  const segments = 50;
+  const amplitude = 1; // How wide the S-curve is
+  
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const x = -config.length / 2 + t * config.length;
+    // Create S-shape using sine wave
+    const z = amplitude * Math.sin(t * Math.PI * 2);
+    const y = config.height;
+    
+    points.push(new THREE.Vector3(x, y, z));
+  }
 
-  const points = curve.getPoints(50);
+  // Create the rail curve
+  const curve = new THREE.CatmullRomCurve3(points);
   const geometry = new THREE.TubeGeometry(
-    new THREE.CatmullRomCurve3(points),
-    50,
+    curve,
+    segments,
     0.04,
     8,
     false
   );
 
+  // Calculate support positions along the S-curve
   const supportPositions = Array.from({ length: config.supports }, (_, i) => {
     const t = i / (config.supports - 1);
     const point = curve.getPoint(t);
@@ -41,14 +51,14 @@ export const CurvedRail: React.FC<CurvedRailProps> = ({
 
   return (
     <group>
-      {/* Curved rail */}
+      {/* S-curved rail */}
       <mesh geometry={geometry} castShadow>
         <meshStandardMaterial {...materialProps} />
       </mesh>
       
       {/* Support posts */}
       {supportPositions.map((pos, i) => {
-        const supportHeight = pos.y;
+        const supportHeight = config.height;
         
         return (
           <group key={i} position={[pos.x, 0, pos.z]}>

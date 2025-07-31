@@ -1,4 +1,4 @@
-export type RailType = 'straight' | 'kinked' | 'curved' | 'rainbow';
+export type RailType = 'straight' | 'curved' | 'rainbow';
 
 export type Material = 'pvc-wood' | 'steel' | 'aluminum';
 
@@ -58,14 +58,9 @@ export const RAIL_TYPES: Record<RailType, { name: string; description: string; c
     description: 'Simple horizontal rail with even supports',
     complexity: 1.0,
   },
-  'kinked': {
-    name: 'Kinked Rail',
-    description: 'Rail with angular segments',
-    complexity: 1.3,
-  },
   'curved': {
-    name: 'Curved Rail',
-    description: 'Smooth curved rail',
+    name: 'S-Curved Rail',
+    description: 'Smooth S-shaped rail lying on the ground',
     complexity: 1.5,
   },
   'rainbow': {

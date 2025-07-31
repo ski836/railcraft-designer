@@ -126,31 +126,6 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           </div>
         )}
 
-        {/* Segments for kinked rails */}
-        {railType === 'kinked' && (
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Segments</Label>
-            <div className="flex items-center space-x-3">
-              <Slider
-                value={[railConfig.segments || 2]}
-                onValueChange={([value]) => updateConfig('segments', value)}
-                min={2}
-                max={5}
-                step={1}
-                className="flex-1"
-              />
-              <Input
-                type="number"
-                value={railConfig.segments || 2}
-                onChange={(e) => updateConfig('segments', parseInt(e.target.value) || 0)}
-                className="w-16 h-8 text-sm"
-                min={2}
-                max={5}
-                step={1}
-              />
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

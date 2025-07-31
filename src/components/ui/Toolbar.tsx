@@ -23,8 +23,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 }) => {
   const railTools = [
     { type: 'straight' as RailType, icon: Minus, label: 'Straight Rail' },
-    { type: 'kinked' as RailType, icon: TrendingUp, label: 'Kinked Rail' },
-    { type: 'curved' as RailType, icon: Waves, label: 'Curved Rail' },
+    { type: 'curved' as RailType, icon: Waves, label: 'S-Curved Rail' },
     { type: 'rainbow' as RailType, icon: Rainbow, label: 'Rainbow Rail' },
   ];
 

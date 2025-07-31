@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Mesh } from 'three';
 import { Rail, MATERIALS } from '../../types/rail';
 import { StraightRail } from './rails/StraightRail';
-import { KinkedRail } from './rails/KinkedRail';
+
 import { CurvedRail } from './rails/CurvedRail';
 import { RainbowRail } from './rails/RainbowRail';
 
@@ -35,8 +35,6 @@ export const RailModel: React.FC<RailModelProps> = ({
     switch (rail.type) {
       case 'straight':
         return <StraightRail {...commonProps} />;
-      case 'kinked':
-        return <KinkedRail {...commonProps} />;
       case 'curved':
         return <CurvedRail {...commonProps} />;
       case 'rainbow':
