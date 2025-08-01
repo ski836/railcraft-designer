@@ -30,6 +30,7 @@ export const RailModeler: React.FC = () => {
   ]);
   const [selectedRailId, setSelectedRailId] = useState<string>('1');
   const [transformMode, setTransformMode] = useState<'select' | 'move' | 'rotate'>('select');
+  const [isDragging, setIsDragging] = useState(false);
 
   const materialPrices = {
     'pvc-wood': 45,
@@ -125,9 +126,9 @@ export const RailModeler: React.FC = () => {
           style={{ background: 'hsl(var(--scene-bg))' }}
         >
           <OrbitControls 
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
+            enablePan={!isDragging}
+            enableZoom={!isDragging}
+            enableRotate={!isDragging}
             maxPolarAngle={Math.PI / 2}
           />
           
@@ -159,6 +160,8 @@ export const RailModeler: React.FC = () => {
             transformMode={transformMode}
             onRailPositionChange={updateRailPosition}
             onRailRotationChange={updateRailRotation}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
           />
           
           <Environment preset="city" />

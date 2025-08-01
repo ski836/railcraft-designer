@@ -9,6 +9,8 @@ interface RailSceneProps {
   transformMode: 'select' | 'move' | 'rotate';
   onRailPositionChange: (railId: string, position: [number, number, number]) => void;
   onRailRotationChange: (railId: string, rotation: [number, number, number]) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
 }
 
 export const RailScene: React.FC<RailSceneProps> = ({
@@ -18,6 +20,8 @@ export const RailScene: React.FC<RailSceneProps> = ({
   transformMode,
   onRailPositionChange,
   onRailRotationChange,
+  onDragStart,
+  onDragEnd,
 }) => {
   return (
     <>
@@ -30,6 +34,8 @@ export const RailScene: React.FC<RailSceneProps> = ({
           transformMode={transformMode}
           onPositionChange={(position) => onRailPositionChange(rail.id, position)}
           onRotationChange={(rotation) => onRailRotationChange(rail.id, rotation)}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
         />
       ))}
     </>

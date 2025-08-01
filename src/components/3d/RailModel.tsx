@@ -13,6 +13,8 @@ interface RailModelProps {
   transformMode: 'select' | 'move' | 'rotate';
   onPositionChange: (position: [number, number, number]) => void;
   onRotationChange: (rotation: [number, number, number]) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
 }
 
 export const RailModel: React.FC<RailModelProps> = ({
@@ -22,6 +24,8 @@ export const RailModel: React.FC<RailModelProps> = ({
   transformMode,
   onPositionChange,
   onRotationChange,
+  onDragStart,
+  onDragEnd,
 }) => {
   const groupRef = useRef<any>();
   const { camera, raycaster, pointer } = useThree();
@@ -62,6 +66,7 @@ export const RailModel: React.FC<RailModelProps> = ({
     if (transformMode === 'move' && isSelected) {
       isDragging.current = true;
       dragPlane.current.copy(rail.position as any);
+      onDragStart();
     }
   };
 
@@ -75,6 +80,9 @@ export const RailModel: React.FC<RailModelProps> = ({
   };
 
   const handlePointerUp = () => {
+    if (isDragging.current) {
+      onDragEnd();
+    }
     isDragging.current = false;
   };
 
