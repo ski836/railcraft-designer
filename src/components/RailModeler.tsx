@@ -6,7 +6,7 @@ import { Toolbar } from './ui/Toolbar';
 import { PropertiesPanel } from './ui/PropertiesPanel';
 import { MaterialsPanel } from './ui/MaterialsPanel';
 import { PricingPanel } from './ui/PricingPanel';
-import { RailType, Material, RailConfig } from '../types/rail';
+import { RailType, Material, RailConfig, Rail } from '../types/rail';
 
 export const RailModeler: React.FC = () => {
   const [selectedRailType, setSelectedRailType] = useState<RailType>('straight');
@@ -18,16 +18,18 @@ export const RailModeler: React.FC = () => {
     radius: 2, // for curved/rainbow rails
     segments: 2, // for kinked rails
   });
-
-  const rails = [
+  const [rails, setRails] = useState<Rail[]>([
     {
       id: '1',
-      type: selectedRailType,
-      material: selectedMaterial,
-      config: railConfig,
-      position: [0, 0, 0] as [number, number, number],
+      type: 'straight',
+      material: 'pvc-wood',
+      config: { length: 6, height: 0.8, supports: 3, radius: 2, segments: 2 },
+      position: [0, 0, 0],
+      rotation: [0, 0, 0],
     }
-  ];
+  ]);
+  const [selectedRailId, setSelectedRailId] = useState<string>('1');
+  const [transformMode, setTransformMode] = useState<'select' | 'move' | 'rotate'>('select');
 
   const materialPrices = {
     'pvc-wood': 45,
@@ -41,11 +43,61 @@ export const RailModeler: React.FC = () => {
     'rainbow': 1.8,
   };
 
+  const selectedRail = rails.find(rail => rail.id === selectedRailId);
+
+  const addRail = () => {
+    const newId = Date.now().toString();
+    const newRail: Rail = {
+      id: newId,
+      type: selectedRailType,
+      material: selectedMaterial,
+      config: railConfig,
+      position: [Math.random() * 4 - 2, 0, Math.random() * 4 - 2],
+      rotation: [0, 0, 0],
+    };
+    setRails([...rails, newRail]);
+    setSelectedRailId(newId);
+  };
+
+  const duplicateRail = () => {
+    if (!selectedRail) return;
+    const newId = Date.now().toString();
+    const newRail: Rail = {
+      ...selectedRail,
+      id: newId,
+      position: [selectedRail.position[0] + 2, selectedRail.position[1], selectedRail.position[2]],
+    };
+    setRails([...rails, newRail]);
+    setSelectedRailId(newId);
+  };
+
+  const deleteRail = () => {
+    if (!selectedRail || rails.length <= 1) return;
+    const newRails = rails.filter(rail => rail.id !== selectedRailId);
+    setRails(newRails);
+    setSelectedRailId(newRails[0]?.id || '');
+  };
+
+  const updateRailPosition = (railId: string, position: [number, number, number]) => {
+    setRails(rails.map(rail => 
+      rail.id === railId ? { ...rail, position } : rail
+    ));
+  };
+
+  const updateRailRotation = (railId: string, rotation: [number, number, number]) => {
+    setRails(rails.map(rail => 
+      rail.id === railId ? { ...rail, rotation } : rail
+    ));
+  };
+
   const calculatePrice = () => {
-    const basePrice = materialPrices[selectedMaterial];
-    const complexityMultiplier = complexityMultipliers[selectedRailType];
-    const lengthFactor = railConfig.length / 6; // base 6m rail
-    const supportsFactor = railConfig.supports * 0.1;
+    const rail = selectedRail || rails[0];
+    if (!rail) return 0;
+    
+    const basePrice = materialPrices[rail.material];
+    const complexityMultiplier = complexityMultipliers[rail.type];
+    const lengthFactor = rail.config.length / 6; // base 6m rail
+    const supportsFactor = rail.config.supports * 0.1;
     
     return Math.round(basePrice * complexityMultiplier * lengthFactor * (1 + supportsFactor));
   };
@@ -57,6 +109,12 @@ export const RailModeler: React.FC = () => {
         <Toolbar 
           selectedRailType={selectedRailType}
           onRailTypeChange={setSelectedRailType}
+          transformMode={transformMode}
+          onTransformModeChange={setTransformMode}
+          onAddRail={addRail}
+          onDuplicateRail={duplicateRail}
+          onDeleteRail={deleteRail}
+          canDelete={rails.length > 1}
         />
       </div>
 
@@ -96,7 +154,11 @@ export const RailModeler: React.FC = () => {
           
           <RailScene 
             rails={rails}
-            selectedRail="1"
+            selectedRail={selectedRailId}
+            onRailSelect={setSelectedRailId}
+            transformMode={transformMode}
+            onRailPositionChange={updateRailPosition}
+            onRailRotationChange={updateRailRotation}
           />
           
           <Environment preset="city" />
@@ -104,11 +166,12 @@ export const RailModeler: React.FC = () => {
         
         {/* Scene Controls Overlay */}
         <div className="absolute top-4 left-4 bg-cad-panel/90 backdrop-blur-sm border border-cad-panel-border rounded-lg p-3">
-          <div className="text-sm font-medium text-foreground mb-2">View Controls</div>
+          <div className="text-sm font-medium text-foreground mb-2">Controls</div>
           <div className="text-xs text-muted-foreground space-y-1">
-            <div>• Left Click + Drag: Rotate</div>
-            <div>• Right Click + Drag: Pan</div>
-            <div>• Scroll: Zoom</div>
+            <div>• Click rail to select</div>
+            <div>• Move mode: Drag to reposition</div>
+            <div>• Rotate mode: R key or use buttons</div>
+            <div>• Camera: Right-click drag to rotate</div>
           </div>
         </div>
       </div>
@@ -116,21 +179,37 @@ export const RailModeler: React.FC = () => {
       {/* Right Panels */}
       <div className="w-80 bg-cad-panel border-l border-cad-panel-border flex flex-col">
         <PropertiesPanel 
-          railConfig={railConfig}
-          onConfigChange={setRailConfig}
-          railType={selectedRailType}
+          railConfig={selectedRail?.config || railConfig}
+          onConfigChange={(config) => {
+            if (selectedRail) {
+              setRails(rails.map(rail => 
+                rail.id === selectedRailId ? { ...rail, config } : rail
+              ));
+            } else {
+              setRailConfig(config);
+            }
+          }}
+          railType={selectedRail?.type || selectedRailType}
         />
         
         <MaterialsPanel 
-          selectedMaterial={selectedMaterial}
-          onMaterialChange={setSelectedMaterial}
+          selectedMaterial={selectedRail?.material || selectedMaterial}
+          onMaterialChange={(material) => {
+            if (selectedRail) {
+              setRails(rails.map(rail => 
+                rail.id === selectedRailId ? { ...rail, material } : rail
+              ));
+            } else {
+              setSelectedMaterial(material);
+            }
+          }}
         />
         
         <PricingPanel 
           price={calculatePrice()}
-          material={selectedMaterial}
-          railType={selectedRailType}
-          config={railConfig}
+          material={selectedRail?.material || selectedMaterial}
+          railType={selectedRail?.type || selectedRailType}
+          config={selectedRail?.config || railConfig}
         />
       </div>
     </div>

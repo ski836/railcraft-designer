@@ -15,11 +15,23 @@ import {
 interface ToolbarProps {
   selectedRailType: RailType;
   onRailTypeChange: (type: RailType) => void;
+  transformMode: 'select' | 'move' | 'rotate';
+  onTransformModeChange: (mode: 'select' | 'move' | 'rotate') => void;
+  onAddRail: () => void;
+  onDuplicateRail: () => void;
+  onDeleteRail: () => void;
+  canDelete: boolean;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   selectedRailType,
   onRailTypeChange,
+  transformMode,
+  onTransformModeChange,
+  onAddRail,
+  onDuplicateRail,
+  onDeleteRail,
+  canDelete,
 }) => {
   const railTools = [
     { type: 'straight' as RailType, icon: Minus, label: 'Straight Rail' },
@@ -28,10 +40,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   ];
 
   const transformTools = [
-    { icon: Move3D, label: 'Move' },
-    { icon: RotateCcw, label: 'Rotate' },
-    { icon: Copy, label: 'Duplicate' },
-    { icon: Trash2, label: 'Delete' },
+    { mode: 'move' as const, icon: Move3D, label: 'Move Tool', action: () => onTransformModeChange('move') },
+    { mode: 'rotate' as const, icon: RotateCcw, label: 'Rotate Tool', action: () => onTransformModeChange('rotate') },
+    { mode: null, icon: Copy, label: 'Duplicate Rail', action: onDuplicateRail },
+    { mode: null, icon: Trash2, label: 'Delete Rail', action: onDeleteRail, disabled: !canDelete },
   ];
 
   return (
@@ -59,17 +71,32 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       {/* Transform Tools */}
       <div className="space-y-1">
         <div className="text-xs text-muted-foreground px-1 mb-2">Tools</div>
-        {transformTools.map(({ icon: Icon, label }) => (
+        {transformTools.map(({ mode, icon: Icon, label, action, disabled }) => (
           <Button
             key={label}
-            variant="ghost"
+            variant={mode && transformMode === mode ? "default" : "ghost"}
             size="sm"
             className="w-12 h-12 p-0"
+            onClick={action}
             title={label}
+            disabled={disabled}
           >
             <Icon className="w-5 h-5" />
           </Button>
         ))}
+      </div>
+
+      {/* Add Rail Button */}
+      <div className="mt-4 px-1">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs"
+          onClick={onAddRail}
+          title="Add New Rail"
+        >
+          + Rail
+        </Button>
       </div>
     </div>
   );
