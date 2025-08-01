@@ -123,18 +123,6 @@ export const RailModel: React.FC<RailModelProps> = ({
       
       {renderRail()}
       
-      {/* Selection indicator */}
-      {isSelected && (
-        <mesh position={[0, -0.05, 0]}>
-          <planeGeometry args={[rail.config.length + 1, rail.config.length + 1]} />
-          <meshBasicMaterial 
-            color="hsl(var(--cad-highlight))" 
-            transparent 
-            opacity={0.1} 
-          />
-        </mesh>
-      )}
-      
       {/* Transform mode indicators */}
       {isSelected && transformMode === 'move' && (
         <mesh position={[0, rail.config.height + 0.5, 0]}>
