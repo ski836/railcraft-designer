@@ -11,6 +11,11 @@ export interface RailConfig {
   width?: number; // rail width
 }
 
+export interface RailConnection {
+  railId: string;
+  endpoint: 'start' | 'end';
+}
+
 export interface Rail {
   id: string;
   type: RailType;
@@ -18,6 +23,10 @@ export interface Rail {
   config: RailConfig;
   position: [number, number, number];
   rotation?: [number, number, number];
+  connections?: {
+    start?: RailConnection;
+    end?: RailConnection;
+  };
 }
 
 export interface MaterialProperties {

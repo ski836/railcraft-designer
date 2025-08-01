@@ -5,6 +5,7 @@ import { Rail, MATERIALS } from '../../types/rail';
 import { StraightRail } from './rails/StraightRail';
 import { CurvedRail } from './rails/CurvedRail';
 import { RainbowRail } from './rails/RainbowRail';
+import { getRailEndpoints } from '../../utils/railConnections';
 
 interface RailModelProps {
   rail: Rail;
@@ -86,6 +87,10 @@ export const RailModel: React.FC<RailModelProps> = ({
     isDragging.current = false;
   };
 
+  const endpoints = useMemo(() => {
+    return getRailEndpoints(rail);
+  }, [rail.position, rail.rotation, rail.config.length]);
+
   const renderRail = () => {
     const commonProps = {
       config: rail.config,
@@ -137,6 +142,28 @@ export const RailModel: React.FC<RailModelProps> = ({
           <meshBasicMaterial color="#ff8800" />
         </mesh>
       )}
+
+      {/* Connection points */}
+      {Object.entries(endpoints).map(([endpoint, position]) => {
+        const localPos: [number, number, number] = [
+          position[0] - rail.position[0],
+          position[1] - rail.position[1] + 0.1,
+          position[2] - rail.position[2]
+        ];
+        
+        const isConnected = rail.connections?.[endpoint as 'start' | 'end'];
+        
+        return (
+          <mesh key={endpoint} position={localPos}>
+            <sphereGeometry args={[0.08]} />
+            <meshBasicMaterial 
+              color={isConnected ? "#00ff00" : "#ffaa00"} 
+              transparent 
+              opacity={isConnected ? 0.8 : 0.6}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 };

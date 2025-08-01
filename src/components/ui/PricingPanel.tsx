@@ -2,14 +2,15 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Badge } from './badge';
 import { Separator } from './separator';
-import { RailConfig, RailType, Material, MATERIALS, RAIL_TYPES } from '../../types/rail';
-import { Calculator, TrendingUp } from 'lucide-react';
+import { RailConfig, RailType, Material, MATERIALS, RAIL_TYPES, Rail } from '../../types/rail';
+import { Calculator, TrendingUp, Link } from 'lucide-react';
 
 interface PricingPanelProps {
   price: number;
   material: Material;
   railType: RailType;
   config: RailConfig;
+  connectedRails?: Rail[];
 }
 
 export const PricingPanel: React.FC<PricingPanelProps> = ({
@@ -17,6 +18,7 @@ export const PricingPanel: React.FC<PricingPanelProps> = ({
   material,
   railType,
   config,
+  connectedRails = [],
 }) => {
   const materialPrice = MATERIALS[material].price;
   const complexityMultiplier = RAIL_TYPES[railType].complexity;
@@ -30,6 +32,12 @@ export const PricingPanel: React.FC<PricingPanelProps> = ({
         <CardTitle className="text-base text-foreground flex items-center">
           <Calculator className="w-4 h-4 mr-2" />
           Cost Estimate
+          {connectedRails.length > 1 && (
+            <Badge variant="secondary" className="ml-2 text-xs">
+              <Link className="w-3 h-3 mr-1" />
+              {connectedRails.length} Connected
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

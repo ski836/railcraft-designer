@@ -7,6 +7,7 @@ import { PropertiesPanel } from './ui/PropertiesPanel';
 import { MaterialsPanel } from './ui/MaterialsPanel';
 import { PricingPanel } from './ui/PricingPanel';
 import { RailType, Material, RailConfig, Rail } from '../types/rail';
+import { updateConnections, getConnectedRails } from '../utils/railConnections';
 
 export const RailModeler: React.FC = () => {
   const [selectedRailType, setSelectedRailType] = useState<RailType>('straight');
@@ -80,9 +81,11 @@ export const RailModeler: React.FC = () => {
   };
 
   const updateRailPosition = (railId: string, position: [number, number, number]) => {
-    setRails(rails.map(rail => 
+    const updatedRails = rails.map(rail => 
       rail.id === railId ? { ...rail, position } : rail
-    ));
+    );
+    const connectedRails = updateConnections(updatedRails, railId);
+    setRails(connectedRails);
   };
 
   const updateRailRotation = (railId: string, rotation: [number, number, number]) => {
@@ -95,12 +98,22 @@ export const RailModeler: React.FC = () => {
     const rail = selectedRail || rails[0];
     if (!rail) return 0;
     
-    const basePrice = materialPrices[rail.material];
-    const complexityMultiplier = complexityMultipliers[rail.type];
-    const lengthFactor = rail.config.length / 6; // base 6m rail
-    const supportsFactor = rail.config.supports * 0.1;
+    // Get all connected rails including the selected one
+    const connectedRails = getConnectedRails(rails, rail.id);
     
-    return Math.round(basePrice * complexityMultiplier * lengthFactor * (1 + supportsFactor));
+    // Calculate total price for all connected rails
+    let totalPrice = 0;
+    
+    for (const connectedRail of connectedRails) {
+      const basePrice = materialPrices[connectedRail.material];
+      const complexityMultiplier = complexityMultipliers[connectedRail.type];
+      const lengthFactor = connectedRail.config.length / 6; // base 6m rail
+      const supportsFactor = connectedRail.config.supports * 0.1;
+      
+      totalPrice += Math.round(basePrice * complexityMultiplier * lengthFactor * (1 + supportsFactor));
+    }
+    
+    return totalPrice;
   };
 
   return (
@@ -175,6 +188,7 @@ export const RailModeler: React.FC = () => {
             <div>• Move mode: Drag to reposition</div>
             <div>• Rotate mode: R key or use buttons</div>
             <div>• Camera: Right-click drag to rotate</div>
+            <div>• Move rails close to connect endpoints</div>
           </div>
         </div>
       </div>
@@ -213,6 +227,7 @@ export const RailModeler: React.FC = () => {
           material={selectedRail?.material || selectedMaterial}
           railType={selectedRail?.type || selectedRailType}
           config={selectedRail?.config || railConfig}
+          connectedRails={selectedRail ? getConnectedRails(rails, selectedRail.id) : []}
         />
       </div>
     </div>
